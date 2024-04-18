@@ -1,15 +1,5 @@
-users: list[dict] = [
-    {"name": "Dawid", "surname": "Bałuka", "posts": 6000},
-    {"name": "Kewin", "surname": "Czajkowski", "posts": 6002},
-    {"name": "Kamil", "surname": "Gil", "posts": 1_000_000},
-    {"name": "Daniel", "surname": "Blaszczyk", "posts": 6}
-
-]
-
-
-def show_users(user_list: list[dict]) -> None:
-    for user in user_list:
-        print(f"Twoj znajomy {user["name"]} opublikowal: {user["posts"]}")
+from models.data import users
+from utils.crud import show_users
 
 if __name__== "__main__":
     print("Witaj uzytkowniku")
@@ -25,3 +15,4 @@ if __name__== "__main__":
             show_users(users)
         if menu_option=="1":
             show_users(users)
+
