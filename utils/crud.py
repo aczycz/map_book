@@ -11,9 +11,9 @@ def add_new_user(users: list) -> None:
     users.append(new_user)
 
 def search_user(users: list) -> None:
-     kogo_szukasz = input("kogo szukasz: ")
+    kogo_szukasz = input("kogo szukasz: ")
     for user in users:
-         if user["name"]==kogo_szukasz:
+         if user["name"] == kogo_szukasz:
              print(user)
 
 def remove_user(users)-> None:
@@ -21,3 +21,11 @@ def remove_user(users)-> None:
     for user in users:
         if user["name"]==kogo_szukasz:
            users.remove(user)
+
+def update_user(users)-> None:
+    kogo_szukasz=input("kogo szukasz: ")
+    for user in users:
+        if user["name"]==kogo_szukasz:
+            user["name"]=input("Podaj nowe imie: ")
+            user["surname"]=input("podaj nowe nazwisko: ")
+            user["posts"]=input("podaj liczbe postow: ")
