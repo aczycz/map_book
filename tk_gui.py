@@ -1,19 +1,44 @@
+import requests
 from tkinter import *
+from bs4 import BeautifulSoup
+import tkintermapview
 
 users: list = []
 
 
 class User:
     def __init__(self, name, surname, posts, location):
-        self.name = name
-        self.surname = surname
-        self.posts = posts
-        self.location = location
+        self.name: str = name
+        self.surname: str = surname
+        self.posts: int = posts
+        self.location: str = location
+        self.cords: list = self.get_coordinates()
+        self.marker: object = map_widget.set_marker(self.cords[0], self.cords[1], text=f"{self.location}")
+
+    def get_coordinates(self) -> list[float]:
+        """
+        Function to get coordinates of user
+        :return: list of coordinates of user
+        """
+        url: str = f"https://pl.wikipedia.org/wiki/{self.location}"
+        response = requests.get(url)
+        response_html = BeautifulSoup(response.text, "html.parser")
+        latitude = float(response_html.select(".latitude")[1].text.replace(",", "."))
+        longitude = float(response_html.select(".longitude")[1].text.replace(",", "."))
+        return [latitude, longitude]
 
 
-def add_new_user():
-    user = User(name=entry_name.get(), surname=entry_surname.get(), posts=entry_posts.get(),
-                location=entry_location.get())
+def add_new_user() -> None:
+    """
+    Function to add new user
+    :return:
+    """
+    user = User(
+        name=entry_name.get(),
+        surname=entry_surname.get(),
+        posts=entry_posts.get(),
+        location=entry_location.get()
+    )
     users.append(user)
     display_users()
     entry_name.delete(0, END)
@@ -23,26 +48,30 @@ def add_new_user():
     entry_name.focus()
 
 
-def display_users():
+def display_users() -> None:
     listbox_lista_uzytkownikow.delete(0, END)
     for idx, user in enumerate(users):
         listbox_lista_uzytkownikow.insert(idx, f'{idx + 1}. {user.name} {user.surname}')
 
 
-def delete_user():
+def delete_user() -> None:
     print(listbox_lista_uzytkownikow.index(ACTIVE))
+    users[listbox_lista_uzytkownikow.index(ACTIVE)].marker.delete()
     users.pop(listbox_lista_uzytkownikow.index(ACTIVE))
     display_users()
 
 
-def show_user_details():
+def show_user_details() -> None:
     i = listbox_lista_uzytkownikow.index(ACTIVE)
     label_opis_name_uzytkownika_wartosc.config(text=users[i].name)
     label_opis_surname_uzytkownika_wartosc.config(text=users[i].surname)
     label_opis_posts_uzytkownika_wartosc.config(text=users[i].posts)
     label_opis_location_uzytkownika_wartosc.config(text=users[i].location)
+    map_widget.set_position(users[i].cords[0], users[i].cords[1])
+    map_widget.set_zoom(13)
 
-def edit_user():
+
+def edit_user() -> None:
     entry_name.delete(0, END)
     entry_surname.delete(0, END)
     entry_posts.delete(0, END)
@@ -50,36 +79,34 @@ def edit_user():
     i = listbox_lista_uzytkownikow.index(ACTIVE)
     entry_name.insert(END, users[i].name)
 
-    button_dodaj_uzytkownika.config(text="Zapisz zmiany", command=lambda: update_user(i))
+    button_dodaj_uztykownika.config(text='Zapisz zmiany', command=lambda: update_user(i))
 
 
-
-
-
-def update_user(i):
+def update_user(i) -> None:
     users[i].name = entry_name.get()
     users[i].surname = entry_surname.get()
     users[i].posts = entry_posts.get()
     users[i].location = entry_location.get()
+    users[i].cords = users[i].get_cordinates()
+    users[i].marker = map_widget.set_marker(users[i].cords[0], users[i].cords[1], text=f"{users[i].location}")
+
     display_users()
-    button_dodaj_uzytkownika.config(text="Dodaj uzytkownika", command=add_new_user)
+    button_dodaj_uztykownika.config(text='Dodaj użytkownika', command=add_new_user)
     entry_name.delete(0, END)
     entry_surname.delete(0, END)
     entry_posts.delete(0, END)
     entry_location.delete(0, END)
-
-
+    entry_name.focus()
 
 
 root = Tk()
-root.geometry('800x700')
+root.geometry('1000x700')
 root.title('MapBook')
 
 # ramki do porządkowania struktury
 ramka_lista_uzytkownikow = Frame(root)
 ramka_formularz = Frame(root)
 ramka_szczegoly_uzytkownika = Frame(root)
-
 
 ramka_lista_uzytkownikow.grid(row=0, column=0, padx=50)
 ramka_formularz.grid(row=0, column=1)
@@ -90,7 +117,7 @@ label_lista_uzytkownikow = Label(ramka_lista_uzytkownikow, text='Lista użytkown
 listbox_lista_uzytkownikow = Listbox(ramka_lista_uzytkownikow, width=30)
 button_pokaz_szczegoly = Button(ramka_lista_uzytkownikow, text='Pokaż szczegóły', command=show_user_details)
 button_usun_uzytkownika = Button(ramka_lista_uzytkownikow, text='Usuń', command=delete_user)
-button_edytuj_uzytkownika = Button(ramka_lista_uzytkownikow, text='Edytuj')
+button_edytuj_uzytkownika = Button(ramka_lista_uzytkownikow, text='Edytuj', command=edit_user)
 
 label_lista_uzytkownikow.grid(row=0, column=0)
 listbox_lista_uzytkownikow.grid(row=1, column=0, columnspan=3)
@@ -146,9 +173,9 @@ label_opis_posts_uzytkownika_wartosc.grid(row=1, column=6)
 label_opis_location_uzytkownika.grid(row=1, column=7)
 label_opis_location_uzytkownika_wartosc.grid(row=1, column=8)
 
-map_widget=tkintermapview.TkinterMapView(ramka_szczegoly_uzytkownika, width=700, height=300)
-map_widget.grid(row=2, column=0, columnspan=8)
-map_widget.set_position(52.21,21.00)
-map_widget.set_zoom(10)
+map_widget = tkintermapview.TkinterMapView(ramka_szczegoly_uzytkownika, width=800, height=400)
+map_widget.grid(row=2, column=0, columnspan=9)
+map_widget.set_position(52.21, 21.00)
+map_widget.set_zoom(6)
 
 root.mainloop()
