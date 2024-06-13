@@ -22,7 +22,7 @@ def get_coords(miejscowosc) -> list:
 
 
 
-def add_new_to_table(db_params) -> None:
+def add_new_user_to_table(db_params) -> None:
     imie = input('Imie: ')
     nazwisko = input('Nazwisko: ')
     post = input('Post: ')
@@ -43,7 +43,7 @@ def add_new_to_table(db_params) -> None:
     cursor.execute(sql_add_query)
     db_params.commit()
 
-add_new_to_table(db_params)
+add_new_user_to_table(db_params)
 
 
 
@@ -57,7 +57,20 @@ def show_users(db_params) -> None:
     for user in users:
         print(user)
 
-show_users(db_params)
+def get_users(db_params) -> list:
+    users_db=[]
+    sql_add_query=f"SELECT * FROM public.users"
+    cursor=db_params.cursor()
+    cursor.execute(sql_add_query)
+    users=cursor.fetchall()
+    # print(users)
+    # db_params.commit()
+    for user in users:
+        users_db.append({"name": "user[1], 'surname': user[2], 'posts': user[3], 'location': user[4], 'coords': user[5]})
+
+    return users_db
+print(get_users(db_params))
+
 
 
 # DELETE FROM public.users

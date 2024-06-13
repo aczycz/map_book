@@ -1,6 +1,6 @@
 from models.data import users
 from utils.crud import show_users,add_new_user,search_user,remove_user,update_user
-
+from utils.crud_db import show_users, remove_users,update_users, add_new_user_to_table, db_params, get_user_id
 if __name__ == "__main__":
     print("Witaj uzytkowniku")
 
@@ -18,14 +18,17 @@ if __name__ == "__main__":
             print("Program konczy prace")
             break
         if menu_option == "1":
-            show_users(users)
+            show_users(db_params)
         if menu_option == "2":
-            add_new_user(users)
+            add_new_user_to_table(db_params)
         if menu_option == "3":
-            search_user(users)
+            get_user_id(db_params)
         if menu_option == "4":
-            remove_user(users)
+            remove_users(db_params)
         if menu_option == "5":
-            update_user(users)
+            update_users(db_params)
 
-# komentarz 21.05
+
+
+
+
